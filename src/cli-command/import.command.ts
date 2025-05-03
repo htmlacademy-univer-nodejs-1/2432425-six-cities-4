@@ -1,29 +1,32 @@
 import chalk from 'chalk';
 
-import TSVFileReader from '../file-reader/tsv-file-reader.js';
 import { CliCommandInterface } from './cli-comand.interface.js';
+import TSVFileReader from '../file-reader/tsv-file-reader.js';
+import { createOffer } from '../shared/helpers/offers.js';
+import { getErrorMessage } from '../shared/helpers/common.js';
 
 export default class ImportCommand implements CliCommandInterface {
   public readonly name = '--import';
 
-  public execute(filename: string): void {
-    try {
-      if (!filename) {
-        throw new Error('не указан путь к файлу для импорта.');
-      }
-      const fileReader = new TSVFileReader(filename.trim());
-      fileReader.read();
-      console.log(fileReader.toArray());
-    } catch (err) {
-      if (!(err instanceof Error)) {
-        throw err;
-      }
+  private onLine(line: string) {
+    const offer = createOffer(line);
+    console.log(offer);
+  }
 
-      console.log(
-        `Не удалось импортировать данные из файла по причине: ${chalk.red(
-          err.message
-        )}`
-      );
+  private onComplete(count: number) {
+    console.log(`${count} rows imported`);
+  }
+
+  public async execute(filename: string): Promise<void> {
+    const fileReader = new TSVFileReader(filename.trim());
+
+    fileReader.on('line', this.onLine);
+    fileReader.on('end', this.onComplete);
+
+    try {
+      await fileReader.read();
+    } catch (err) {
+      console.log(`Can't read the file: "${chalk.red(getErrorMessage(err))}"`);
     }
   }
 }
