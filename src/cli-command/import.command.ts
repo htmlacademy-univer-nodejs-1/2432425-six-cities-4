@@ -1,7 +1,7 @@
 import chalk from 'chalk';
 
 import { CliCommandInterface } from './cli-comand.interface.js';
-import TSVFileReader from '../file-reader/tsv-file-reader.js';
+import TSVFileReader from '../libs/file-reader/tsv-file-reader.js';
 import { createOffer } from '../shared/helpers/offers.js';
 import { getErrorMessage } from '../shared/helpers/common.js';
 
