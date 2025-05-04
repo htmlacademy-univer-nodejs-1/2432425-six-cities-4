@@ -1,8 +1,8 @@
 import got from 'got';
 import { CliCommandInterface } from './cli-comand.interface.js';
-import { MockData } from '../types/mock-data.type.js';
+import { MockData } from '../shared/types/mock-data.type.js';
 import { OfferGenerator } from '../offer-generator/offer-generator.js';
-import TSVFileWriter from '../libs/file-writer/tsv-file-writer.js';
+import TSVFileWriter from '../shared/libs/file-writer/tsv-file-writer.js';
 
 export default class GenerateCommand implements CliCommandInterface {
   public readonly name = '--generate';

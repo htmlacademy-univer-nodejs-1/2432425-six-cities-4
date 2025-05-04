@@ -1,11 +1,11 @@
 import dayjs from 'dayjs';
 
 import { OfferGeneratorInterface } from './offer-generator.interface.js';
-import { MockData } from '../types/mock-data.type.js';
+import { MockData } from '../shared/types/mock-data.type.js';
 import { getRandomItem } from '../shared/helpers/random.js';
 import { generateRandomValue } from '../shared/helpers/random.js';
-import { City } from '../types/city.type.js';
-import { Housing } from '../types/housing.type.js';
+import { City } from '../shared/types/city.type.js';
+import { Housing } from '../shared/types/housing.type.js';
 
 const MIN_PRICE = 100;
 const MAX_PRICE = 100_000;
