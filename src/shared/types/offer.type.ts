@@ -1,6 +1,6 @@
 import { City } from './city.type.js';
 import { Features } from './features.type.js';
-import { Host } from './host.type.js';
+import { User } from './host.type.js';
 import { Housing } from './housing.type.js';
 import { Location } from './location.type.js';
 
@@ -19,7 +19,7 @@ export type Offer = {
   capacity: number; // 1 — 10
   price: number; // 100 — 100_000
   features: Features[];
-  host: Host;
+  host: User;
   commentsAmount: number;
   location: Location;
 };
