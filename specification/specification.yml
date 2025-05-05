@@ -156,40 +156,6 @@ paths:
                   $ref: '#/components/schemas/offer'
 
   /offers/favourites:
-    post:
-      tags:
-        - offers
-      summary: Добавление предложение в избранное
-      description: Добавляет предложение в избранное
-      security:
-        - Bearer: [ ]
-      responses:
-        "200":
-          description: Предложение успешно добавлено в избранное
-
-        "401":
-          description: 'Не авторизован'
-
-        "404":
-          description: 'Нет предложения по такому offerId'
-
-    delete:
-      tags:
-        - offers
-      summary: Удаление предложения из избранного
-      description: Удаляет предложение из избранного
-      security:
-        - Bearer: [ ]
-      responses:
-        "200":
-          description: Предложение успешно удалено из избранного
-
-        "401":
-          description: 'Не авторизован'
-
-        "404":
-          description: 'Нет предложения по такому offerId'
-
     get:
       tags:
         - offers
@@ -209,6 +175,43 @@ paths:
 
         "401":
           description: 'Не авторизован'
+
+  /offers/{offerId}/addFavourite:
+    post:
+      tags:
+        - offers
+      summary: Добавление предложение в избранное
+      description: Добавляет предложение в избранное
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: Предложение успешно добавлено в избранное
+
+        "401":
+          description: 'Не авторизован'
+
+        "404":
+          description: 'Нет предложения по такому offerId'
+
+  /offers/{offerId}/deleteFavorite:
+    delete:
+      tags:
+        - offers
+      summary: Удаление предложения из избранного
+      description: Удаляет предложение из избранного
+      security:
+        - Bearer: [ ]
+      responses:
+        "200":
+          description: Предложение успешно удалено из избранного
+
+        "401":
+          description: 'Не авторизован'
+
+        "404":
+          description: 'Нет предложения по такому offerId'
+
 
   /users/register:
     post:
@@ -347,7 +350,7 @@ paths:
 
 components:
   schemas:
-    coordinates:
+    location:
       type: object
 
       properties:
@@ -499,7 +502,7 @@ components:
           example: 0
 
         location:
-          $ref: '#/components/schemas/coordinates'
+          $ref: '#/components/schemas/location'
 
     offer:
       type: object
@@ -521,7 +524,7 @@ components:
           minLength: 20
           maxLength: 1024
 
-        postedAt:
+        postDate:
           type: string
           format: date
           example: 07.10.2023
@@ -587,7 +590,7 @@ components:
           example: 0
 
         location:
-          $ref: '#/components/schemas/coordinates'
+          $ref: '#/components/schemas/location'
 
     comment:
       type: object
