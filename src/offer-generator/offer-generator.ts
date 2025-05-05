@@ -20,7 +20,7 @@ export class OfferGenerator implements OfferGeneratorInterface {
   public generate(): string {
     const name = getRandomItem<string>(this.mockData.names);
     const description = getRandomItem<string>(this.mockData.descriptions);
-    const postDate = dayjs().subtract(generateRandomValue(FIRST_WEEK_DAY,LAST_WEEK_DAY),'day').toISOString();
+    const postedAt = dayjs().subtract(generateRandomValue(FIRST_WEEK_DAY,LAST_WEEK_DAY),'day').toISOString();
     const city = getRandomItem([City.Paris, City.Cologne, City.Brussels, City.Amsterdam,
       City.Hamburg, City.Dusseldorf]);
     const imagePreview = getRandomItem<string>(this.mockData.imagePreviews);
@@ -30,20 +30,20 @@ export class OfferGenerator implements OfferGeneratorInterface {
     const rating = generateRandomValue(1,5);
     const housingType = getRandomItem([Housing.Apartment, Housing.House,
       Housing.Room, Housing.Hotel]);
-    const roomsNumber = generateRandomValue(1,5);
-    const guestsNumber = generateRandomValue(1,10);
-    const rentalPrice = generateRandomValue(MIN_PRICE, MAX_PRICE);
-    const conveniences = getRandomItem<string>(this.mockData.conveniences);
-    const author = getRandomItem<string>(this.mockData.authors);
-    const commentsNumber = getRandomItem<string>(this.mockData.commentsNumbers);
-    const coordinates = getRandomItem<string>(this.mockData.coordinates);
+    const bedroomsAmount = generateRandomValue(1,5);
+    const capacity = generateRandomValue(1,10);
+    const price = generateRandomValue(MIN_PRICE, MAX_PRICE);
+    const features = getRandomItem<string>(this.mockData.features);
+    const host = getRandomItem<string>(this.mockData.hosts);
+    const commentsAmount = getRandomItem<string>(this.mockData.commentsAmount);
+    const location = getRandomItem<string>(this.mockData.location);
 
     return [
-      name, description, postDate,
+      name, description, postedAt,
       city, imagePreview, photos, isPremium,
-      isFavourite, rating, housingType, roomsNumber,
-      guestsNumber, rentalPrice, conveniences,
-      author, commentsNumber, coordinates
+      isFavourite, rating, housingType, bedroomsAmount,
+      capacity, price, features,
+      host, commentsAmount, location
     ].join('\t');
   }
 }

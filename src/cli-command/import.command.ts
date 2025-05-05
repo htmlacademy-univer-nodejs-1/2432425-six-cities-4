@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { CliCommandInterface } from './cli-comand.interface.js';
 import TSVFileReader from '../shared/libs/file-reader/tsv-file-reader.js';
 import chalk from 'chalk';

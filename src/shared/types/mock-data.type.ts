@@ -3,8 +3,8 @@ export type MockData = {
   descriptions: string[];
   imagePreviews: string[];
   images: string[];
-  conveniences: string[];
-  authors: string[];
-  commentsNumbers: string[];
-  coordinates: string[];
+  features: string[];
+  hosts: string[];
+  commentsAmount: string[];
+  location: string[];
 }
