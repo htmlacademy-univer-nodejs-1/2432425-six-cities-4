@@ -1,0 +1,10 @@
+POST http://localhost:6000/users/register
+Content-Type: application/json
+
+{
+  "name": "alex",
+  "email": "alex@mail.ru",
+  "password": "123456",
+  "avatar": "1.png",
+  "type": "Common"
+}
