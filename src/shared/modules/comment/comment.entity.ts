@@ -27,7 +27,7 @@ export class CommentEntity extends defaultClasses.TimeStamps {
     required: true,
     ref: UserEntity
   })
-  public author!: Ref<UserEntity>;
+  public host!: Ref<UserEntity>;
 
   @prop({
     required: true,

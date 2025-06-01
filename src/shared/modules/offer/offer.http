@@ -4,7 +4,7 @@ Content-Type: application/json
 {
   "title": "Небольшой дом",
   "description": "Сдается небольшой дом",
-  "postedAt": "07.10.2024",
+  "postedAt": "2024-07-16T19:00:00.000Z",
   "city": "Paris",
   "imagePreview": "preview2.png",
   "photos": [
@@ -50,7 +50,7 @@ Content-Type: application/json
 
 {
   "title": "Приличный дом",
-  "postDate": "01.01.2023"
+  "postedAt": "2024-07-16T19:00:00.000Z"
 }
 
 ###
