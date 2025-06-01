@@ -23,12 +23,12 @@ export default class CommentService implements CommentServiceInterface {
     const newRating = (offer!.rating + dto.rating) / offer!.commentsAmount;
 
     await this.offerService.updateRating(dto.offerId, newRating);
-    return comment.populate('user');
+    return comment.populate('host');
   }
 
   public async findByOfferId(offerId: string): Promise<DocumentType<CommentEntity>[]> {
     return this.commentModel
       .find({offerId})
-      .populate('user');
+      .populate('host');
   }
 }
