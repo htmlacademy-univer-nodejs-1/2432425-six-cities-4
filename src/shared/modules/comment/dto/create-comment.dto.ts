@@ -12,7 +12,6 @@ export default class CreateCommentDto {
   @Max(5, {message: 'Maximum rating must be 5'})
   public rating!: number;
 
-  @IsMongoId({message: 'host field must be valid an id'})
   public host!: string;
 
   @IsMongoId({message: 'offerId field must be valid an id'})
