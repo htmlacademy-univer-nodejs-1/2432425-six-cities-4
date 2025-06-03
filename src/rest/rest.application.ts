@@ -8,6 +8,7 @@ import { DatabaseClientInterface } from '../shared/libs/database-client/database
 import { getMongoURI } from '../shared/helpers/database.js';
 import { ExceptionFilterInterface } from '../shared/libs/rest/exception-filters/exception-filter.interface.js';
 import { ControllerInterface } from '../shared/libs/rest/controller/controller.interface.js';
+import { ParseTokenMiddleware } from '../shared/middleware/parse-token.middleware.js';
 
 @injectable()
 export default class Application {
@@ -20,7 +21,8 @@ export default class Application {
     @inject(AppComponent.ExceptionFilterInterface) private readonly exceptionFilter: ExceptionFilterInterface,
     @inject(AppComponent.UserController) private readonly userController: ControllerInterface,
     @inject(AppComponent.OfferController) private readonly offerController: ControllerInterface,
-    @inject(AppComponent.CommentController) private readonly commentController: ControllerInterface
+    @inject(AppComponent.CommentController) private readonly commentController: ControllerInterface,
+    @inject(AppComponent.AuthExceptionFilter) private readonly authExceptionFilter: ExceptionFilterInterface,
   ) {
     this.expressApplication = express();
   }
@@ -35,14 +37,17 @@ export default class Application {
 
   private async _initExceptionFilters() {
     this.logger.info('Exception filter initialization');
+    this.expressApplication.use(this.authExceptionFilter.catch.bind(this.authExceptionFilter));
     this.expressApplication.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
     this.logger.info('Exception filters completed');
   }
 
   private async _initMiddleware() {
     this.logger.info('Global middleware initialization...');
+    const authenticateMiddleware = new ParseTokenMiddleware(this.config.get('JWT_SECRET'));
     this.expressApplication.use(express.json());
     this.expressApplication.use('/upload', express.static(this.config.get('UPLOAD_DIRECTORY')));
+    this.expressApplication.use(authenticateMiddleware.execute.bind(authenticateMiddleware));
     this.logger.info('Global middleware initialization completed');
   }
 

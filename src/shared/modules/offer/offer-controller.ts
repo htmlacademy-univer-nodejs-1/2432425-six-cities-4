@@ -17,6 +17,7 @@ import { ValidateObjectIdMiddleware } from '../../middleware/validate-objectId.m
 import { ValidateDtoMiddleware } from '../../middleware/validate-dto.middleware.js';
 import IndexOfferRdo from './rdo/index-offer.rdo.js';
 import { DocumentExistsMiddleware } from '../../middleware/document-exists.middleware.js';
+import { PrivateRouteMiddleware } from '../../middleware/private-route.middleware.js';
 @injectable()
 export default class OfferController extends Controller {
   constructor(
@@ -30,7 +31,7 @@ export default class OfferController extends Controller {
       path: '/',
       method: HttpMethod.Post,
       handler: this.create,
-      middlewares: [new ValidateDtoMiddleware(CreateOfferDto)]
+      middlewares: [new ValidateDtoMiddleware(CreateOfferDto), new PrivateRouteMiddleware()]
     });
 
     this.addRoute({path: '/', method: HttpMethod.Get, handler: this.getOfferList});
@@ -43,7 +44,8 @@ export default class OfferController extends Controller {
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(UpdateOfferDto),
-        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
+        new PrivateRouteMiddleware()
       ]
     });
 
@@ -53,7 +55,8 @@ export default class OfferController extends Controller {
       handler: this.deleteOffer,
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
-        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
+        new PrivateRouteMiddleware()
       ]
     });
 
@@ -91,10 +94,10 @@ export default class OfferController extends Controller {
   }
 
   public async create(
-    {body}: Request<UnknownRecord, UnknownRecord, CreateOfferDto>,
+    {body, tokenPayload}: Request<UnknownRecord, UnknownRecord, CreateOfferDto>,
     res: Response
   ) {
-    const result = await this.offerService.create(body);
+    const result = await this.offerService.create({ ...body, userId: tokenPayload.id });
     this.created(res, result);
   }
 

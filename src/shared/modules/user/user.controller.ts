@@ -16,13 +16,16 @@ import LoginUserDto from './dto/login-user.dto.js';
 import {ValidateDtoMiddleware} from '../../middleware/validate-dto.middleware.js';
 import { ValidateObjectIdMiddleware } from '../../middleware/validate-objectId.middleware.js';
 import { UploadFileMiddleware } from '../../middleware/upload-file.middleware.js';
+import { AuthService } from '../auth/auth-service.interface.js';
+import { LoggedUserRdo } from './rdo/logged-user.rdo.js';
 
 @injectable()
 export default class UserController extends Controller {
   constructor(
     @inject(AppComponent.LoggerInterface) protected readonly logger: LoggerInterface,
     @inject(AppComponent.UserServiceInterface) protected readonly userService: UserServiceInterface,
-    @inject(AppComponent.ConfigInterface) protected readonly configService: ConfigInterface<RestSchema>
+    @inject(AppComponent.ConfigInterface) protected readonly configService: ConfigInterface<RestSchema>,
+    @inject(AppComponent.AuthService) private readonly authService: AuthService,
   ) {
     super(logger);
     this.logger.info('Register routes for UserController...');
@@ -41,7 +44,7 @@ export default class UserController extends Controller {
       middlewares: [new ValidateDtoMiddleware(LoginUserDto)]
     });
 
-    this.addRoute({path: '/login', method: HttpMethod.Get, handler: this.getUserInfo});
+    this.addRoute({path: '/login', method: HttpMethod.Get, handler: this.checkAuthenticate});
     this.addRoute({path: '/logout', method: HttpMethod.Post, handler: this.logout});
 
     this.addRoute({
@@ -77,22 +80,15 @@ export default class UserController extends Controller {
 
   public async login(
     {body}: Request<Record<string, unknown>, Record<string, unknown>, LoginUserDto>,
-    _res: Response,
+    res: Response,
   ): Promise<void> {
-    const existsUser = await this.userService.findByEmail(body.email);
-
-    if (!existsUser) {
-      throw new HttpError(
-        StatusCodes.UNAUTHORIZED,
-        `User with email ${body.email} not found.`,
-        'UserController',
-      );
-    }
-    throw new HttpError(
-      StatusCodes.NOT_IMPLEMENTED,
-      'NOT_IMPLEMENTED',
-      'UserController',
-    );
+    const user = await this.authService.verify(body);
+    const token = await this.authService.authenticate(user);
+    const responseData = fillDTO(LoggedUserRdo, {
+      email: user.email,
+      token,
+    });
+    this.ok(res, responseData);
   }
 
   public async logout(_req: Request, _res: Response): Promise<void> {
@@ -103,12 +99,18 @@ export default class UserController extends Controller {
     );
   }
 
-  public async getUserInfo(_req: Request, _res: Response): Promise<void> {
-    throw new HttpError(
-      StatusCodes.NOT_IMPLEMENTED,
-      'NOT_IMPLEMENTED',
-      'UserController',
-    );
+  public async checkAuthenticate({ tokenPayload: { email }}: Request, res: Response) {
+    const foundedUser = await this.userService.findByEmail(email);
+
+    if (! foundedUser) {
+      throw new HttpError(
+        StatusCodes.UNAUTHORIZED,
+        'Unauthorized',
+        'UserController'
+      );
+    }
+
+    this.ok(res, fillDTO(LoggedUserRdo, foundedUser));
   }
 
   public async uploadAvatar(req: Request, res: Response) {

@@ -8,7 +8,7 @@ import {
   IsDateString,
   IsEnum,
   IsInt,
-  IsMongoId, IsObject,
+  IsObject,
   IsString, Max, MaxLength,
   Min,
   MinLength
@@ -67,8 +67,9 @@ export default class CreateOfferDto {
   @IsEnum(Features, {each: true, message: 'features must be one of the enum elements'})
   public features!: Features[];
 
-  @IsMongoId({message: 'host field must be valid an id'})
-  public host!: string;
+  public userId!: string;
+
+  //public host!: string;
 
   @IsObject({message: 'location must be a Coordinates object'})
   public location!: Location;

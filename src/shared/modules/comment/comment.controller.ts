@@ -16,6 +16,7 @@ import {StatusCodes} from 'http-status-codes';
 import { ValidateObjectIdMiddleware } from '../../middleware/validate-objectId.middleware.js';
 import {ValidateDtoMiddleware} from '../../middleware/validate-dto.middleware.js';
 import { DocumentExistsMiddleware } from '../../middleware/document-exists.middleware.js';
+import { PrivateRouteMiddleware } from '../../middleware/private-route.middleware.js';
 
 @injectable()
 export default class CommentController extends Controller {
@@ -35,6 +36,7 @@ export default class CommentController extends Controller {
       middlewares: [
         new ValidateObjectIdMiddleware('offerId'),
         new ValidateDtoMiddleware(CreateCommentDto),
+        new PrivateRouteMiddleware(),
         new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId')
       ]
     });
@@ -51,7 +53,7 @@ export default class CommentController extends Controller {
   }
 
   public async create(
-    {body}: Request<UnknownRecord, UnknownRecord, CreateCommentDto>,
+    {body, tokenPayload}: Request<UnknownRecord, UnknownRecord, CreateCommentDto>,
     res: Response
   ) {
     if (!await this.offerService.exists(body.offerId)) {
@@ -62,7 +64,7 @@ export default class CommentController extends Controller {
       );
     }
 
-    const comment = await this.commentService.create(body);
+    const comment = await this.commentService.create({ ...body, host: tokenPayload.id });
     this.created(res, fillDTO(CommentRdo, comment));
   }
 
