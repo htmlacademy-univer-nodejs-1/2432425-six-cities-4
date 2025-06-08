@@ -18,11 +18,19 @@ import { ValidateDtoMiddleware } from '../../middleware/validate-dto.middleware.
 import IndexOfferRdo from './rdo/index-offer.rdo.js';
 import { DocumentExistsMiddleware } from '../../middleware/document-exists.middleware.js';
 import { PrivateRouteMiddleware } from '../../middleware/private-route.middleware.js';
+import { CommentServiceInterface } from '../comment/comment-service.interface.js';
+import { ConfigInterface } from '../../libs/config/config.interface.js';
+import { RestSchema } from '../../libs/config/index.js';
+import { UploadImageRdo } from './rdo/upload-image.rdo.js';
+import { UploadFileMiddleware } from '../../middleware/upload-file.middleware.js';
+import CommentRdo from '../comment/rdo/comment.rdo.js';
 @injectable()
 export default class OfferController extends Controller {
   constructor(
     @inject(AppComponent.LoggerInterface) protected readonly logger: LoggerInterface,
     @inject(AppComponent.OfferServiceInterface) protected readonly offerService: OfferServiceInterface,
+    @inject(AppComponent.CommentServiceInterface) private readonly commentService: CommentServiceInterface,
+    @inject(AppComponent.ConfigInterface) private readonly configService: ConfigInterface<RestSchema>,
   ) {
     super(logger);
     this.logger.info('Register routes for ConfigController...');
@@ -91,6 +99,27 @@ export default class OfferController extends Controller {
     });
 
     this.addRoute({path: '/premium/:city', method: HttpMethod.Get, handler: this.getPremium});
+
+    this.addRoute({
+      path: '/:offerId/imagePreview',
+      method: HttpMethod.Post,
+      handler: this.uploadImage,
+      middlewares: [
+        new PrivateRouteMiddleware(),
+        new ValidateObjectIdMiddleware('offerId'),
+        new UploadFileMiddleware(this.configService.get('UPLOAD_DIRECTORY'), 'imagePreview'),
+      ]
+    });
+
+    this.addRoute({
+      path: '/:offerId/commentsAmount',
+      method: HttpMethod.Get,
+      handler: this.getComments,
+      middlewares: [
+        new ValidateObjectIdMiddleware('offerId'),
+        new DocumentExistsMiddleware(this.offerService, 'Offer', 'offerId'),
+      ]
+    });
   }
 
   public async create(
@@ -166,5 +195,17 @@ export default class OfferController extends Controller {
   ) {
     await this.offerService.deleteFromFavorites(params.offerId);
     this.ok(res, 'Offer was deleted from favourites');
+  }
+
+  public async uploadImage({ params, file } : Request<ParamsOfferId>, res: Response) {
+    const { offerId } = params;
+    const updateDto = { imagePreview: file?.filename };
+    await this.offerService.updateOfferById(offerId, updateDto);
+    this.created(res, fillDTO(UploadImageRdo, updateDto));
+  }
+
+  public async getComments({ params }: Request<ParamsOfferId>, res: Response): Promise<void> {
+    const comments = await this.commentService.findByOfferId(params.offerId);
+    this.ok(res, fillDTO(CommentRdo, comments));
   }
 }

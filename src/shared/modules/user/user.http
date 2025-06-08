@@ -13,11 +13,9 @@ POST http://localhost:6000/users/register
 Content-Type: application/json
 
 {
-  "userId": "alex123",
-  "name": "alex123",
-  "email": "alex123@mail.ru",
-  "password": "123456",
-  "avatar": "1.png",
+  "name": "alex12346",
+  "email": "alex12346@mail.ru",
+  "password": "12345678",
   "type": "Common"
 }
 
@@ -26,8 +24,8 @@ POST http://localhost:6000/users/login
 Content-Type: application/json
 
 {
-  "email": "alex123@mail.ru",
-  "password": "123456"
+  "email": "alex12346@mail.ru",
+  "password": "12345678"
 }
 
 ###
