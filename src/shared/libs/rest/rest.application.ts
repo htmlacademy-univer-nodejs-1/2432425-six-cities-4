@@ -1,14 +1,17 @@
 import express, {Express} from 'express';
 import {inject, injectable} from 'inversify';
-import { LoggerInterface } from '../shared/libs/logger/logger.interface.js';
-import { ConfigInterface } from '../shared/libs/config/config.interface.js';
-import { RestSchema } from '../shared/libs/config/rest.schema.js';
-import { AppComponent } from '../shared/types/app-component.enum.js';
-import { DatabaseClientInterface } from '../shared/libs/database-client/database-client.interface.js';
-import { getMongoURI } from '../shared/helpers/database.js';
-import { ExceptionFilterInterface } from '../shared/libs/rest/exception-filters/exception-filter.interface.js';
-import { ControllerInterface } from '../shared/libs/rest/controller/controller.interface.js';
-import { ParseTokenMiddleware } from '../shared/middleware/parse-token.middleware.js';
+import cors from 'cors';
+import { LoggerInterface } from '../logger/logger.interface.js';
+import { ConfigInterface } from '../config/config.interface.js';
+import { RestSchema } from '../config/rest.schema.js';
+import { AppComponent } from '../../types/app-component.enum.js';
+import { DatabaseClientInterface } from '../database-client/database-client.interface.js';
+import { getMongoURI } from '../../helpers/database.js';
+import { ExceptionFilterInterface } from './exception-filters/exception-filter.interface.js';
+import { ControllerInterface } from './controller/controller.interface.js';
+import { ParseTokenMiddleware } from '../../middleware/parse-token.middleware.js';
+import { getFullServerPath } from '../../helpers/common.js';
+import { STATIC_FILES_ROUTE, STATIC_UPLOAD_ROUTE } from './rest.constant.js';
 
 @injectable()
 export default class Application {
@@ -23,6 +26,8 @@ export default class Application {
     @inject(AppComponent.OfferController) private readonly offerController: ControllerInterface,
     @inject(AppComponent.CommentController) private readonly commentController: ControllerInterface,
     @inject(AppComponent.AuthExceptionFilter) private readonly authExceptionFilter: ExceptionFilterInterface,
+    @inject(AppComponent.HttpExceptionFilter) private readonly httpExceptionFilter: ExceptionFilterInterface,
+    @inject(AppComponent.ValidationExceptionFilter) private readonly validationExceptionFilter: ExceptionFilterInterface,
   ) {
     this.expressApplication = express();
   }
@@ -38,6 +43,8 @@ export default class Application {
   private async _initExceptionFilters() {
     this.logger.info('Exception filter initialization');
     this.expressApplication.use(this.authExceptionFilter.catch.bind(this.authExceptionFilter));
+    this.expressApplication.use(this.validationExceptionFilter.catch.bind(this.validationExceptionFilter));
+    this.expressApplication.use(this.httpExceptionFilter.catch.bind(this.httpExceptionFilter));
     this.expressApplication.use(this.exceptionFilter.catch.bind(this.exceptionFilter));
     this.logger.info('Exception filters completed');
   }
@@ -46,8 +53,10 @@ export default class Application {
     this.logger.info('Global middleware initialization...');
     const authenticateMiddleware = new ParseTokenMiddleware(this.config.get('JWT_SECRET'));
     this.expressApplication.use(express.json());
-    this.expressApplication.use('/upload', express.static(this.config.get('UPLOAD_DIRECTORY')));
+    this.expressApplication.use(STATIC_UPLOAD_ROUTE, express.static(this.config.get('UPLOAD_DIRECTORY')));
+    this.expressApplication.use(STATIC_FILES_ROUTE,express.static(this.config.get('STATIC_DIRECTORY_PATH')));
     this.expressApplication.use(authenticateMiddleware.execute.bind(authenticateMiddleware));
+    this.expressApplication.use(cors());
     this.logger.info('Global middleware initialization completed');
   }
 
@@ -57,7 +66,7 @@ export default class Application {
     const port = this.config.get('PORT');
     this.expressApplication.listen(port);
 
-    this.logger.info(`Server started on http://localhost:${this.config.get('PORT')}`);
+    this.logger.info(`Server started on ${getFullServerPath(this.config.get('HOST'), this.config.get('PORT'))}`);
   }
 
   private async _initDb() {

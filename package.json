@@ -21,6 +21,7 @@
   "devDependencies": {
     "@types/convict": "^6.1.6",
     "@types/convict-format-with-validator": "^6.0.5",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.2",
     "@types/mime-types": "^3.0.0",
     "@types/mongoose": "^5.11.97",
@@ -28,6 +29,7 @@
     "@types/node": "18.17.17",
     "@typescript-eslint/eslint-plugin": "6.7.0",
     "@typescript-eslint/parser": "6.7.0",
+    "cors": "^2.8.5",
     "eslint": "8.49.0",
     "eslint-config-htmlacademy": "9.1.1",
     "got": "^14.4.7",

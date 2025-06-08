@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 import { Container } from 'inversify';
 
-import Application from './rest/rest.application.js';
+import Application from './shared/libs/rest/rest.application.js';
 import { AppComponent } from './shared/types/app-component.enum.js';
-import { createRestApplicationContainer } from './rest/rest.container.js';
+import { createRestApplicationContainer } from './shared/libs/rest/rest.container.js';
 import { createUserContainer } from './shared/modules/user/user.container.js';
 import { createOfferContainer } from './shared/modules/offer/offer.container.js';
 import { createCommentContainer } from './shared/modules/comment/comment.container.js';

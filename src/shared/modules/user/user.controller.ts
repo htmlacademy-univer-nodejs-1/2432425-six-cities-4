@@ -18,6 +18,7 @@ import { ValidateObjectIdMiddleware } from '../../middleware/validate-objectId.m
 import { UploadFileMiddleware } from '../../middleware/upload-file.middleware.js';
 import { AuthService } from '../auth/auth-service.interface.js';
 import { LoggedUserRdo } from './rdo/logged-user.rdo.js';
+import { UploadUserAvatarRdo } from './rdo/upload-user-avatar.rdo.js';
 
 @injectable()
 export default class UserController extends Controller {
@@ -84,11 +85,8 @@ export default class UserController extends Controller {
   ): Promise<void> {
     const user = await this.authService.verify(body);
     const token = await this.authService.authenticate(user);
-    const responseData = fillDTO(LoggedUserRdo, {
-      email: user.email,
-      token,
-    });
-    this.ok(res, responseData);
+    const responseData = fillDTO(LoggedUserRdo, user);
+    this.ok(res, Object.assign(responseData, { token }));
   }
 
   public async logout(_req: Request, _res: Response): Promise<void> {
@@ -113,9 +111,10 @@ export default class UserController extends Controller {
     this.ok(res, fillDTO(LoggedUserRdo, foundedUser));
   }
 
-  public async uploadAvatar(req: Request, res: Response) {
-    this.created(res, {
-      filepath: req.file?.path
-    });
+  public async uploadAvatar({ params, file }: Request, res: Response) {
+    const { userId } = params;
+    const uploadFile = { avatar: file?.filename };
+    await this.userService.updateById(userId, uploadFile);
+    this.created(res, fillDTO(UploadUserAvatarRdo, { filepath: uploadFile.avatar }));
   }
 }

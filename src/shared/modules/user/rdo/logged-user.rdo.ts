@@ -11,4 +11,10 @@ export class LoggedUserRdo {
     this.token = token;
     this.email = email;
   }
+
+  @Expose()
+  public avatar!: string;
+
+  @Expose()
+  public name!: string;
 }
